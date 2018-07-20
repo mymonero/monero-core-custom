@@ -41,7 +41,7 @@ using namespace epee;
 #include "common/base58.h"
 #include "crypto/hash.h"
 #include "common/int-util.h"
-// #include "common/dns_utils.h"
+//#include "common/dns_utils.h"
 
 #undef MONERO_DEFAULT_LOG_CATEGORY
 #define MONERO_DEFAULT_LOG_CATEGORY "cn"
@@ -296,7 +296,7 @@ namespace cryptonote {
 
     return true;
   }
-//  //--------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------
 //  bool get_account_address_from_str_or_url(
 //      address_parse_info& info
 //    , network_type nettype
