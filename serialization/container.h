@@ -31,7 +31,6 @@
 #pragma once
 
 #include "serialization.h"
-#include "vector.h" // needed for detail::do_add
 
 namespace serialization
 {

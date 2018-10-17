@@ -40,32 +40,6 @@ static __thread bool is_leaf = false;
 
 namespace tools
 {
-
-
-  namespace
-  {
-    boost::mutex max_concurrency_lock;
-    unsigned max_concurrency = boost::thread::hardware_concurrency();
-  }
-
-  void set_max_concurrency(unsigned n)
-  {
-    if (n < 1)
-      n = boost::thread::hardware_concurrency();
-    unsigned hwc = boost::thread::hardware_concurrency();
-    if (n > hwc)
-      n = hwc;
-    boost::lock_guard<boost::mutex> lock(max_concurrency_lock);
-    max_concurrency = n;
-  }
-
-  unsigned get_max_concurrency()
-  {
-    boost::lock_guard<boost::mutex> lock(max_concurrency_lock);
-    return max_concurrency;
-  }
-
-
 threadpool::threadpool(unsigned int max_threads) : running(true), active(0) {
   boost::thread::attributes attrs;
   attrs.set_stack_size(THREAD_STACK_SIZE);
@@ -77,13 +51,22 @@ threadpool::threadpool(unsigned int max_threads) : running(true), active(0) {
 }
 
 threadpool::~threadpool() {
+  try
   {
     const boost::unique_lock<boost::mutex> lock(mutex);
     running = false;
     has_work.notify_all();
   }
+  catch (...)
+  {
+    // if the lock throws, we're just do it without a lock and hope,
+    // since the alternative is terminate
+    running = false;
+    has_work.notify_all();
+  }
   for (size_t i = 0; i<threads.size(); i++) {
-    threads[i].join();
+    try { threads[i].join(); }
+    catch (...) { /* ignore */ }
   }
 }
 
@@ -116,11 +99,13 @@ unsigned int threadpool::get_max_concurrency() const {
 
 threadpool::waiter::~waiter()
 {
+  try
   {
     boost::unique_lock<boost::mutex> lock(mt);
     if (num)
       MERROR("wait should have been called before waiter dtor - waiting now");
   }
+  catch (...) { /* ignore */ }
   try
   {
     wait(NULL);

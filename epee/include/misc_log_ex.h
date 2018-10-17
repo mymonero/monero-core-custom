@@ -29,22 +29,7 @@
 #define _MISC_LOG_EX_H_
 
 #include "logger.h"
-#include "static_initializer.h"
-#include "string_tools.h"
-#include "time_helper.h"
-#include "misc_os_dependent.h"
-
-#include "syncobj.h"
-
-#define ELPP_THREAD_SAFE
-#define ELPP_DEFAULT_LOG_FILE ""
-#if !defined __GNUC__ || defined __MINGW32__ || defined __MINGW64__ || defined __ANDROID__
-#else
-#define ELPP_STACKTRACE_ON_CRASH 1
-#endif
-#define ELPP_DISABLE_DEFAULT_CRASH_HANDLING
-#define ELPP_FEATURE_CRASH_LOG 1
-#define ELPP_DISABLE_CHECK_MACROS
+#include <sstream>
 
 #define MONERO_DEFAULT_LOG_CATEGORY "default"
 
@@ -55,6 +40,7 @@
 #define MCDEBUG(cat,x) LOGGER_DEBUG() << x
 #define MCTRACE(cat,x) LOGGER_DEBUG() << x
 #define MCLOG(level,cat,x) LOGGER_LOG(level) << x
+#define MCLOG_FILE(level,cat,x) MCLOG(level,cat,x)
 
 #define MCLOG_COLOR(level,cat,color,x) MCLOG(level,cat,"\033[1;" color "m" << x << "\033[0m")
 #define MCLOG_RED(level,cat,x) MCLOG_COLOR(level,cat,"31",x)
@@ -98,9 +84,9 @@
 #define _dbg2(x) MDEBUG(x)
 #define _dbg1(x) MDEBUG(x)
 #define _info(x) MINFO(x)
-#define _note(x) MINFO(x)
-#define _fact(x) MINFO(x)
-#define _mark(x) MINFO(x)
+#define _note(x) MDEBUG(x)
+#define _fact(x) MDEBUG(x)
+#define _mark(x) MDEBUG(x)
 #define _warn(x) MWARNING(x)
 #define _erro(x) MERROR(x)
 
@@ -155,7 +141,7 @@ namespace debug
 
 
 #define ASSERT_MES_AND_THROW(message) {LOG_ERROR(message); std::stringstream ss; ss << message; throw std::runtime_error(ss.str());}
-#define CHECK_AND_ASSERT_THROW_MES(expr, message) {if(!(expr)) ASSERT_MES_AND_THROW(message);}
+#define CHECK_AND_ASSERT_THROW_MES(expr, message) do {if(!(expr)) ASSERT_MES_AND_THROW(message);} while(0)
 
 
 #ifndef CHECK_AND_ASSERT

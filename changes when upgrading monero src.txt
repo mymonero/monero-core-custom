@@ -1,0 +1,224 @@
+1. vendor libsodium crypto_verify to contrib/libsodium
+2. this should be compatible with "#include <sodium/crypto_verify_32.h>"
+
+=================
+
+
+diff -r src/common/base58.cpp /Users/paulshapiro/Documents/Repos/monero-core-custom/common/base58.cpp
+38,39c38,39
+< #include "int-util.h"
+< #include "util.h"
+---
+> #include "common/int-util.h"
+> //#include "util.h"
+
+// ^----- this doesn't need to be done anymore
+
+===================
+
+util.h and util.cpp are heavily modified to include (almost only)
+
+#include <boost/thread/thread.hpp>
+
+
+and support only 
+
+
+
+  void set_max_concurrency(unsigned n)
+  {
+    if (n < 1)
+      n = boost::thread::hardware_concurrency();
+    unsigned hwc = boost::thread::hardware_concurrency();
+    if (n > hwc)
+      n = hwc;
+    boost::lock_guard<boost::mutex> lock(max_concurrency_lock);
+    max_concurrency = n;
+  }
+
+  unsigned get_max_concurrency()
+  {
+    boost::lock_guard<boost::mutex> lock(max_concurrency_lock);
+    return max_concurrency;
+  }
+
+
+
+
+====================
+
+
+account.cpp:
+
+<   crypto::secret_key account_base::generate(const crypto::secret_key& recovery_key, bool recover, bool two_random)
+---
+>   crypto::secret_key account_base::generate(const crypto::secret_key& recovery_key, bool recover, bool two_random, bool from_legacy16B_lw_seed)
+153c87
+<     keccak((uint8_t *)&m_keys.m_spend_secret_key, sizeof(crypto::secret_key), (uint8_t *)&second, sizeof(crypto::secret_key));
+---
+>     keccak((uint8_t *)&(from_legacy16B_lw_seed ? first : m_keys.m_spend_secret_key), sizeof(crypto::secret_key), (uint8_t *)&second, sizeof(crypto::secret_key));
+
+====================
+
+<     crypto::secret_key generate(const crypto::secret_key& recovery_key = crypto::secret_key(), bool recover = false, bool two_random = false);
+<     void create_from_device(const std::string &device_name);
+<     void create_from_device(hw::device &hwdev);
+---
+>     crypto::secret_key generate(const crypto::secret_key& recovery_key = crypto::secret_key(), bool recover = false, bool two_random = false, bool from_legacy16B_lw_seed = false);
+>     void create_from_device(const std::string &device_name) ;
+102,106d89
+
+====================
+
+
+diff -r src/cryptonote_basic/cryptonote_basic_impl.cpp /Users/paulshapiro/Documents/Repos/monero-core-custom/cryptonote_basic/cryptonote_basic_impl.cpp
+44c44
+< #include "common/dns_utils.h"
+---
+> // #include "common/dns_utils.h"
+
+================
+
+
+cryptonote_basic_impl
+
+<   bool get_account_address_from_str_or_url(
+<       address_parse_info& info
+<     , network_type nettype
+<     , const std::string& str_or_url
+<     , std::function<std::string(const std::string&, const std::vector<std::string>&, bool)> dns_confirm
+<     )
+<   {
+<     if (get_account_address_from_str(info, nettype, str_or_url))
+<       return true;
+<     bool dnssec_valid;
+<     std::string address_str = tools::dns_utils::get_account_address_as_str_from_url(str_or_url, dnssec_valid, dns_confirm);
+<     return !address_str.empty() &&
+<       get_account_address_from_str(info, nettype, address_str);
+<   }
+---
+> //  //--------------------------------------------------------------------------------
+> //  bool get_account_address_from_str_or_url(
+> //      address_parse_info& info
+> //    , network_type nettype
+> //    , const std::string& str_or_url
+> //    , std::function<std::string(const std::string&, const std::vector<std::string>&, bool)> dns_confirm
+> //    )
+> //  {
+> //    if (get_account_address_from_str(info, nettype, str_or_url))
+> //      return true;
+> //    bool dnssec_valid;
+> //    std::string address_str = tools::dns_utils::get_account_address_as_str_from_url(str_or_url, dnssec_valid, dns_confirm);
+> //    return !address_str.empty() &&
+> //      get_account_address_from_str(info, nettype, address_str);
+> //  }
+
+
+
+=======================
+
+
+diff -r src/cryptonote_core/cryptonote_tx_utils.cpp /Users/paulshapiro/Documents/Repos/monero-core-custom/cryptonote_core/cryptonote_tx_utils.cpp
+40c40
+< #include "cryptonote_basic/miner.h"
+---
+> //#include "cryptonote_basic/miner.h"
+
+
+...... and comment functions like construct_miner_tx
+
+<   bool construct_miner_tx(size_t height, size_t median_weight, uint64_t already_generated_coins, size_t current_block_weight
+, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce, size_t max_outs, ui
+nt8_t hard_fork_version) {
+
+> //  bool construct_miner_tx(size_t height, size_t median_size, uint64_t already_generated_coins, size_t current_block_size, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce, size_t max_outs, uint8_t hard_fork_version) {
+
+--- and ---
+
+> //  bool generate_genesis_block(
+> //      block& bl
+> //    , std::string const & genesis_tx
+> //    , uint32_t nonce
+> //    )
+> //  {
+
+
+=============
+
+
+diff -r src/cryptonote_core/cryptonote_tx_utils.h /Users/paulshapiro/Documents/Repos/monero-core-custom/cryptonote_core/cryptonote_tx_utils.h
+
+>  // bool construct_miner_tx(size_t height, size_t median_weight, uint64_t already_generated_coins, size_t current_block_weight, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce = blobdata(), size_t max_outs = 999, uint8_t hard_fork_version = 1);
+
+-and-
+
+>   // bool generate_genesis_block(
+>   //     block& bl
+>   //   , std::string const & genesis_tx
+>   //   , uint32_t nonce
+>   //   );
+
+============
+
+
+
+diff -r src/ringct/bulletproofs.cc /Users/paulshapiro/Documents/Repos/monero-core-custom/ringct/bulletproofs.cc
+32,33d31
+< #include <openssl/ssl.h>
+< #include <openssl/bn.h>
+36,37c34
+< #include "common/perf_timer.h"
+< #include "cryptonote_config.h"
+---
+> // #include "common/perf_timer.h"
+
+* comment calls to PERF_TIMER_UNIT / PERF_TIMER_START_BP / PERF_TIMER_STOP 
+
+* replace invert with:
+
+/* Compute the inverse of a scalar, the naive way */
+static rct::key invert(const rct::key &x)
+{
+  static const rct::key l_minus_2 = { {0xeb, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10 } };
+
+  rct::key inv = rct::identity();
+  rct::key tmp = x;
+  for (int n = 0; n < 256; ++n)
+  {
+    if (l_minus_2[n>>3] & (1<<(n&7)))
+      sc_mul(inv.bytes, inv.bytes, tmp.bytes);
+    sc_mul(tmp.bytes, tmp.bytes, tmp.bytes);
+  }
+  return inv;  
+}
+
+
+* probably can remove bulletproof_VERIFY 
+
+
+==============
+
+
+diff -r src/ringct/rctSigs.cpp /Users/paulshapiro/Documents/Repos/monero-core-custom/ringct/rctSigs.cpp
+32c32
+< #include "common/perf_timer.h"
+---
+> // #include "common/perf_timer.h"
+
+
+and comment PERF_TIMER(verRange); etc
+
+
+==============
+
+edit multiexp.cc to comment out perf timer include and MULTIEXP_PERF( …
+
+
+
+============
+
+
+epee/include/misc_log_ex.h, and logger.h/cpp are heavily customized - don't overwrite -- update them from code shared with back-end
+
+* add `#include <sstream>` to misc_log_ex.h
+
