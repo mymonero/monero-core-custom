@@ -222,3 +222,30 @@ epee/include/misc_log_ex.h, and logger.h/cpp are heavily customized - don't over
 
 * add `#include <sstream>` to misc_log_ex.h
 
+
+============
+
+
+epee/include and epee/src mlocker.cpp:
+
+* this might not be necessary
+
+comment #define HAVE_MLOCK 1
+
+and replace get_page_size with
+
+    return 4096; // just to remove some calls
+    // CRITICAL_REGION_LOCAL(mutex());
+    // if (page_size == 0)
+    //   page_size = query_page_size();
+    // return page_size;
+
+
+
+===========
+
+
+mnemonics/electrum-words.cpp
+
+-    return result.checksum() % crypto::ElectrumWords::seed_length;
++    return result.checksum() % word_list.size();
