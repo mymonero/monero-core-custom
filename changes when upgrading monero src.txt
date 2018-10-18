@@ -244,8 +244,54 @@ and replace get_page_size with
 
 ===========
 
+important for 13-word support:
 
 mnemonics/electrum-words.cpp
 
 -    return result.checksum() % crypto::ElectrumWords::seed_length;
 +    return result.checksum() % word_list.size();
+
+
+=========
+
+
+for emscripten: (Note this might not actually make a difference - remove if confirmed not to)
+
+crypto/slow-hash.c
+
+-extern int aesb_single_round(const uint8_t *in, uint8_t*out, const uint8_t *expandedKey);
+-extern int aesb_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey);
++extern void aesb_single_round(const uint8_t *in, uint8_t*out, const uint8_t *expandedKey);
++extern void aesb_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey);
+  
+-extern int aesb_single_round(const uint8_t *in, uint8_t*out, const uint8_t *expandedKey);
+-extern int aesb_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey);
++extern void aesb_single_round(const uint8_t *in, uint8_t*out, const uint8_t *expandedKey);
++extern void aesb_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey);
+ 
+
+=========
+
+Note: this may not be necessary but might simplify emscripten compilation (remove this entry if confirmed not to)
+
+
+epee/src/mlocker.cpp
+
+-#define HAVE_MLOCK 1
++// #define HAVE_MLOCK 1
+
+
+
+-    CRITICAL_REGION_LOCAL(mutex());
+-    if (page_size == 0)
+-      page_size = query_page_size();
+-    return page_size;
++    return 4096;
++    // CRITICAL_REGION_LOCAL(mutex());
++    // if (page_size == 0)
++    //   page_size = query_page_size();
++    // return page_size;
+
+
+
+and comment out body of other function implementations

@@ -27,7 +27,7 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if defined __GNUC__ && !defined _WIN32
-#define HAVE_MLOCK 1
+// #define HAVE_MLOCK 1
 #endif
 
 #include <unistd.h>
@@ -95,20 +95,21 @@ namespace epee
 
   size_t mlocker::get_page_size()
   {
-    CRITICAL_REGION_LOCAL(mutex());
-    if (page_size == 0)
-      page_size = query_page_size();
-    return page_size;
+    return 4096;
+    // CRITICAL_REGION_LOCAL(mutex());
+    // if (page_size == 0)
+    //   page_size = query_page_size();
+    // return page_size;
   }
 
   mlocker::mlocker(void *ptr, size_t len): ptr(ptr), len(len)
   {
-    lock(ptr, len);
+    // lock(ptr, len);
   }
 
   mlocker::~mlocker()
   {
-    unlock(ptr, len);
+    // unlock(ptr, len);
   }
 
   void mlocker::lock(void *ptr, size_t len)
@@ -117,12 +118,12 @@ namespace epee
     if (page_size == 0)
       return;
 
-    CRITICAL_REGION_LOCAL(mutex());
-    const size_t first = ((uintptr_t)ptr) / page_size;
-    const size_t last = (((uintptr_t)ptr) + len - 1) / page_size;
-    for (size_t page = first; page <= last; ++page)
-      lock_page(page);
-    ++num_locked_objects;
+    // CRITICAL_REGION_LOCAL(mutex());
+    // const size_t first = ((uintptr_t)ptr) / page_size;
+    // const size_t last = (((uintptr_t)ptr) + len - 1) / page_size;
+    // for (size_t page = first; page <= last; ++page)
+    //   lock_page(page);
+    // ++num_locked_objects;
   }
 
   void mlocker::unlock(void *ptr, size_t len)
@@ -130,53 +131,55 @@ namespace epee
     size_t page_size = get_page_size();
     if (page_size == 0)
       return;
-    CRITICAL_REGION_LOCAL(mutex());
-    const size_t first = ((uintptr_t)ptr) / page_size;
-    const size_t last = (((uintptr_t)ptr) + len - 1) / page_size;
-    for (size_t page = first; page <= last; ++page)
-      unlock_page(page);
-    --num_locked_objects;
+    // CRITICAL_REGION_LOCAL(mutex());
+    // const size_t first = ((uintptr_t)ptr) / page_size;
+    // const size_t last = (((uintptr_t)ptr) + len - 1) / page_size;
+    // for (size_t page = first; page <= last; ++page)
+    //   unlock_page(page);
+    // --num_locked_objects;
   }
 
   size_t mlocker::get_num_locked_pages()
   {
-    CRITICAL_REGION_LOCAL(mutex());
-    return map().size();
+    return 0;
+    // CRITICAL_REGION_LOCAL(mutex());
+    // return map().size();
   }
 
   size_t mlocker::get_num_locked_objects()
   {
-    CRITICAL_REGION_LOCAL(mutex());
-    return num_locked_objects;
+    return 0;
+    // CRITICAL_REGION_LOCAL(mutex());
+    // return num_locked_objects;
   }
 
   void mlocker::lock_page(size_t page)
   {
-    std::pair<std::map<size_t, unsigned int>::iterator, bool> p = map().insert(std::make_pair(page, 1));
-    if (p.second)
-    {
-      do_lock((void*)(page * page_size), page_size);
-    }
-    else
-    {
-      ++p.first->second;
-    }
+    // std::pair<std::map<size_t, unsigned int>::iterator, bool> p = map().insert(std::make_pair(page, 1));
+    // if (p.second)
+    // {
+    //   do_lock((void*)(page * page_size), page_size);
+    // }
+    // else
+    // {
+    //   ++p.first->second;
+    // }
   }
 
   void mlocker::unlock_page(size_t page)
   {
-    std::map<size_t, unsigned int>::iterator i = map().find(page);
-    if (i == map().end())
-    {
-      MERROR("Attempt to unlock unlocked page at " << (void*)(page * page_size));
-    }
-    else
-    {
-      if (!--i->second)
-      {
-        map().erase(i);
-        do_unlock((void*)(page * page_size), page_size);
-      }
-    }
+    // std::map<size_t, unsigned int>::iterator i = map().find(page);
+    // if (i == map().end())
+    // {
+    //   MERROR("Attempt to unlock unlocked page at " << (void*)(page * page_size));
+    // }
+    // else
+    // {
+    //   if (!--i->second)
+    //   {
+    //     map().erase(i);
+    //     do_unlock((void*)(page * page_size), page_size);
+    //   }
+    // }
   }
 }
