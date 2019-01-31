@@ -47,6 +47,8 @@
 #define INIT_SIZE_BLK   8
 #define INIT_SIZE_BYTE (INIT_SIZE_BLK * AES_BLOCK_SIZE)
 
+// extern int aesb_single_round(const uint8_t *in, uint8_t*out, const uint8_t *expandedKey);
+// extern int aesb_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey);
 extern void aesb_single_round(const uint8_t *in, uint8_t*out, const uint8_t *expandedKey);
 extern void aesb_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey);
 
@@ -1408,6 +1410,8 @@ static void (*const extra_hashes[4])(const void *, size_t, char *) = {
   hash_extra_blake, hash_extra_groestl, hash_extra_jh, hash_extra_skein
 };
 
+// extern int aesb_single_round(const uint8_t *in, uint8_t*out, const uint8_t *expandedKey);
+// extern int aesb_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey);
 extern void aesb_single_round(const uint8_t *in, uint8_t*out, const uint8_t *expandedKey);
 extern void aesb_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey);
 

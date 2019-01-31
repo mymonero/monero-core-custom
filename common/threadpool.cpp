@@ -51,6 +51,11 @@ threadpool::threadpool(unsigned int max_threads) : running(true), active(0) {
 }
 
 threadpool::~threadpool() {
+  // {
+  //   const boost::unique_lock<boost::mutex> lock(mutex);
+  //   running = false;
+  //   has_work.notify_all();
+  // }
   try
   {
     const boost::unique_lock<boost::mutex> lock(mutex);
@@ -99,6 +104,11 @@ unsigned int threadpool::get_max_concurrency() const {
 
 threadpool::waiter::~waiter()
 {
+  // {
+  //   boost::unique_lock<boost::mutex> lock(mt);
+  //   if (num)
+  //     MERROR("wait should have been called before waiter dtor - waiting now");
+  // }
   try
   {
     boost::unique_lock<boost::mutex> lock(mt);

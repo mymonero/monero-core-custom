@@ -28,11 +28,23 @@
 #ifndef _MISC_LOG_EX_H_
 #define _MISC_LOG_EX_H_
 
+// #include <string>
+// #include "easylogging++.h"
 #include "logger.h"
 #include <sstream>
 
 #define MONERO_DEFAULT_LOG_CATEGORY "default"
+// #define MAX_LOG_FILE_SIZE 104850000 // 100 MB - 7600 bytes
+// #define MAX_LOG_FILES 50
 
+// #define MCFATAL(cat,x) CLOG(FATAL,cat) << x
+// #define MCERROR(cat,x) CLOG(ERROR,cat) << x
+// #define MCWARNING(cat,x) CLOG(WARNING,cat) << x
+// #define MCINFO(cat,x) CLOG(INFO,cat) << x
+// #define MCDEBUG(cat,x) CLOG(DEBUG,cat) << x
+// #define MCTRACE(cat,x) CLOG(TRACE,cat) << x
+// #define MCLOG(level,cat,x) ELPP_WRITE_LOG(el::base::Writer, level, el::base::DispatchAction::NormalLog, cat) << x
+// #define MCLOG_FILE(level,cat,x) ELPP_WRITE_LOG(el::base::Writer, level, el::base::DispatchAction::FileOnlyLog, cat) << x
 #define MCFATAL(cat,x) (LOGGER_ERROR() << x); std::abort()
 #define MCERROR(cat,x) LOGGER_ERROR() << x
 #define MCWARNING(cat,x) LOGGER_WARNING() << x
@@ -66,6 +78,12 @@
 #define MLOG(level,x) MCLOG(level,MONERO_DEFAULT_LOG_CATEGORY,x)
 
 #define MGINFO(x) MCINFO("global",x)
+// #define MGINFO_RED(x) MCLOG_RED(el::Level::Info, "global",x)
+// #define MGINFO_GREEN(x) MCLOG_GREEN(el::Level::Info, "global",x)
+// #define MGINFO_YELLOW(x) MCLOG_YELLOW(el::Level::Info, "global",x)
+// #define MGINFO_BLUE(x) MCLOG_BLUE(el::Level::Info, "global",x)
+// #define MGINFO_MAGENTA(x) MCLOG_MAGENTA(el::Level::Info, "global",x)
+// #define MGINFO_CYAN(x) MCLOG_CYAN(el::Level::Info, "global",x)
 #define MGINFO_RED(x) MCLOG_RED(logger::kInfo, "global",x)
 #define MGINFO_GREEN(x) MCLOG_GREEN(logger::kInfo, "global",x)
 #define MGINFO_YELLOW(x) MCLOG_YELLOW(logger::kInfo, "global",x)
@@ -90,6 +108,7 @@
 #define _warn(x) MWARNING(x)
 #define _erro(x) MERROR(x)
 
+// #define MLOG_SET_THREAD_NAME(x) el::Helpers::setThreadName(x)
 #define MLOG_SET_THREAD_NAME(x)
 
 #ifndef LOCAL_ASSERT
@@ -101,6 +120,13 @@
 #endif
 
 #endif
+
+// std::string mlog_get_default_log_path(const char *default_filename);
+// void mlog_configure(const std::string &filename_base, bool console, const std::size_t max_log_file_size = MAX_LOG_FILE_SIZE, const std::size_t max_log_files = MAX_LOG_FILES);
+// void mlog_set_categories(const char *categories);
+// std::string mlog_get_categories();
+// void mlog_set_log_level(int level);
+// void mlog_set_log(const char *log);
 
 namespace epee
 {

@@ -1,21 +1,21 @@
 // Copyright (c) 2014-2018, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -28,7 +28,7 @@
 
 /*!
  * \file language_base.h
- * 
+ *
  * \brief Language Base class for Polymorphism.
  */
 
@@ -140,25 +140,6 @@ namespace Language
     return sc;
   }
 
-  struct WordHash
-  {
-    std::size_t operator()(const epee::wipeable_string &s) const
-    {
-      const epee::wipeable_string sc = utf8canonical(s);
-      return epee::fnv::FNV1a(sc.data(), sc.size());
-    }
-  };
-
-  struct WordEqual
-  {
-    bool operator()(const epee::wipeable_string &s0, const epee::wipeable_string &s1) const
-    {
-      const epee::wipeable_string s0c = utf8canonical(s0);
-      const epee::wipeable_string s1c = utf8canonical(s1);
-      return s0c == s1c;
-    }
-  };
-
   /*!
    * \class Base
    * \brief A base language class which all languages have to inherit from for
@@ -175,6 +156,8 @@ namespace Language
       NWORDS = 1626
     };
     std::vector<std::string> word_list; /*!< A pointer to the array of words */
+    // std::unordered_map<epee::wipeable_string, uint32_t> word_map; /*!< hash table to find word's index */
+    // std::unordered_map<epee::wipeable_string, uint32_t> trimmed_word_map; /*!< hash table to find word's trimmed index */
     std::unordered_map<epee::wipeable_string, uint32_t, WordHash, WordEqual> word_map; /*!< hash table to find word's index */
     std::unordered_map<epee::wipeable_string, uint32_t, WordHash, WordEqual> trimmed_word_map; /*!< hash table to find word's trimmed index */
     std::string language_name; /*!< Name of language */
@@ -247,6 +230,7 @@ namespace Language
      * \brief Returns a pointer to the word map.
      * \return A pointer to the word map.
      */
+    // const std::unordered_map<epee::wipeable_string, uint32_t>& get_word_map() const
     const std::unordered_map<epee::wipeable_string, uint32_t, WordHash, WordEqual>& get_word_map() const
     {
       return word_map;
@@ -255,6 +239,7 @@ namespace Language
      * \brief Returns a pointer to the trimmed word map.
      * \return A pointer to the trimmed word map.
      */
+    // const std::unordered_map<epee::wipeable_string, uint32_t>& get_trimmed_word_map() const
     const std::unordered_map<epee::wipeable_string, uint32_t, WordHash, WordEqual>& get_trimmed_word_map() const
     {
       return trimmed_word_map;
