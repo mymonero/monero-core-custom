@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2016-2019, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -25,23 +25,42 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once
 
-#include <sstream>
-#include "json_archive.h"
+#include <boost/optional/optional.hpp>
+#include <cstdint>
+#include <string>
+#include <vector>
+#include "crypto/hash.h"
 
-namespace serialization {
-
-template<class T>
-std::string dump_json(T &v)
+namespace cryptonote
 {
-  std::stringstream ostr;
-  json_archive<true> oar(ostr);
-  assert(serialization::serialize(oar, v));
-  return ostr.str();
+class core;
+
+namespace rpc
+{
+
+struct output_distribution_data
+{
+  std::vector<std::uint64_t> distribution;
+  std::uint64_t start_height;
+  std::uint64_t base;
 };
 
-} // namespace serialization
+class RpcHandler
+{
+  public:
+    RpcHandler() { }
+    virtual ~RpcHandler() { }
+
+    virtual std::string handle(const std::string& request) = 0;
+
+    static boost::optional<output_distribution_data>
+      get_output_distribution(const std::function<bool(uint64_t, uint64_t, uint64_t, uint64_t&, std::vector<uint64_t>&, uint64_t&)> &f, uint64_t amount, uint64_t from_height, uint64_t to_height, const std::function<crypto::hash(uint64_t)> &get_hash, bool cumulative, uint64_t blockchain_height);
+};
+
+
+}  // rpc
+
+}  // cryptonote
