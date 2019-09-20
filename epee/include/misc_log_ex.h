@@ -31,8 +31,11 @@
 #include "logger.h"
 #include <sstream>
 
+#undef MONERO_DEFAULT_LOG_CATEGORY
 #define MONERO_DEFAULT_LOG_CATEGORY "default"
 
+
+#if 1
 #define MCFATAL(cat,x) (LOGGER_ERROR() << x); std::abort()
 #define MCERROR(cat,x) LOGGER_ERROR() << x
 #define MCWARNING(cat,x) LOGGER_WARNING() << x
@@ -41,6 +44,23 @@
 #define MCTRACE(cat,x) LOGGER_DEBUG() << x
 #define MCLOG(level,cat,x) LOGGER_LOG(level) << x
 #define MCLOG_FILE(level,cat,x) MCLOG(level,cat,x)
+#else
+#define MCLOG_TYPE(level, cat, type, x) do { \
+    if (ELPP->vRegistry()->allowed(level, cat)) { \
+      el::base::Writer(level, __FILE__, __LINE__, ELPP_FUNC, type).construct(cat) << x; \
+    } \
+  } while (0)
+
+#define MCLOG(level, cat, x) MCLOG_TYPE(level, cat, el::base::DispatchAction::NormalLog, x)
+#define MCLOG_FILE(level, cat, x) MCLOG_TYPE(level, cat, el::base::DispatchAction::FileOnlyLog, x)
+
+#define MCFATAL(cat,x) MCLOG(el::Level::Fatal,cat, x)
+#define MCERROR(cat,x) MCLOG(el::Level::Error,cat, x)
+#define MCWARNING(cat,x) MCLOG(el::Level::Warning,cat, x)
+#define MCINFO(cat,x) MCLOG(el::Level::Info,cat, x)
+#define MCDEBUG(cat,x) MCLOG(el::Level::Debug,cat, x)
+#define MCTRACE(cat,x) MCLOG(el::Level::Trace,cat, x)
+#endif
 
 #define MCLOG_COLOR(level,cat,color,x) MCLOG(level,cat,"\033[1;" color "m" << x << "\033[0m")
 #define MCLOG_RED(level,cat,x) MCLOG_COLOR(level,cat,"31",x)
@@ -72,6 +92,16 @@
 #define MGINFO_BLUE(x) MCLOG_BLUE(logger::kInfo, "global",x)
 #define MGINFO_MAGENTA(x) MCLOG_MAGENTA(logger::kInfo, "global",x)
 #define MGINFO_CYAN(x) MCLOG_CYAN(logger::kInfo, "global",x)
+
+#define IFLOG(level, cat, type, init, x) \
+  do { \
+    if (ELPP->vRegistry()->allowed(level, cat)) { \
+      init; \
+      el::base::Writer(level, __FILE__, __LINE__, ELPP_FUNC, type).construct(cat) << x; \
+    } \
+  } while(0)
+#define MIDEBUG(init, x) IFLOG(el::Level::Debug, MONERO_DEFAULT_LOG_CATEGORY, el::base::DispatchAction::NormalLog, init, x)
+
 
 #define LOG_ERROR(x) MERROR(x)
 #define LOG_PRINT_L0(x) MWARNING(x)
