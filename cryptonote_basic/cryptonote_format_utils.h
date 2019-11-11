@@ -117,8 +117,6 @@ namespace cryptonote
   bool calculate_block_hash(const block& b, crypto::hash& res, const blobdata *blob = NULL);
   bool get_block_hash(const block& b, crypto::hash& res);
   crypto::hash get_block_hash(const block& b);
-  bool get_block_longhash(const block& b, crypto::hash& res, uint64_t height);
-  crypto::hash get_block_longhash(const block& b, uint64_t height);
   bool parse_and_validate_block_from_blob(const blobdata& b_blob, block& b, crypto::hash *block_hash);
   bool parse_and_validate_block_from_blob(const blobdata& b_blob, block& b);
   bool parse_and_validate_block_from_blob(const blobdata& b_blob, block& b, crypto::hash &block_hash);
@@ -129,6 +127,7 @@ namespace cryptonote
   bool parse_amount(uint64_t& amount, const std::string& str_amount);
   uint64_t get_transaction_weight(const transaction &tx);
   uint64_t get_transaction_weight(const transaction &tx, size_t blob_size);
+  uint64_t get_pruned_transaction_weight(const transaction &tx);
 
   bool check_money_overflow(const transaction& tx);
   bool check_outs_overflow(const transaction& tx);
