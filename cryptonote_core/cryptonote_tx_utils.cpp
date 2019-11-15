@@ -37,7 +37,6 @@ using namespace epee;
 #include "common/apply_permutation.h"
 #include "cryptonote_tx_utils.h"
 #include "cryptonote_config.h"
-// #include "cryptonote_basic/miner.h"
 #include "cryptonote_basic/tx_extra.h"
 #include "crypto/crypto.h"
 #include "crypto/hash.h"
@@ -611,23 +610,27 @@ namespace cryptonote
   {
     hw::device &hwdev = sender_account_keys.get_device();
     hwdev.open_tx(tx_key);
+    try {
+      // figure out if we need to make additional tx pubkeys
+      size_t num_stdaddresses = 0;
+      size_t num_subaddresses = 0;
+      account_public_address single_dest_subaddress;
+      classify_addresses(destinations, change_addr, num_stdaddresses, num_subaddresses, single_dest_subaddress);
+      bool need_additional_txkeys = num_subaddresses > 0 && (num_stdaddresses > 0 || num_subaddresses > 1);
+      if (need_additional_txkeys)
+      {
+        additional_tx_keys.clear();
+        for (const auto &d: destinations)
+          additional_tx_keys.push_back(keypair::generate(sender_account_keys.get_device()).sec);
+      }
 
-    // figure out if we need to make additional tx pubkeys
-    size_t num_stdaddresses = 0;
-    size_t num_subaddresses = 0;
-    account_public_address single_dest_subaddress;
-    classify_addresses(destinations, change_addr, num_stdaddresses, num_subaddresses, single_dest_subaddress);
-    bool need_additional_txkeys = num_subaddresses > 0 && (num_stdaddresses > 0 || num_subaddresses > 1);
-    if (need_additional_txkeys)
-    {
-      additional_tx_keys.clear();
-      for (const auto &d: destinations)
-        additional_tx_keys.push_back(keypair::generate(sender_account_keys.get_device()).sec);
+      bool r = construct_tx_with_tx_key(sender_account_keys, subaddresses, sources, destinations, change_addr, extra, tx, unlock_time, tx_key, additional_tx_keys, rct, rct_config, msout);
+      hwdev.close_tx();
+      return r;
+    } catch(...) {
+      hwdev.close_tx();
+      throw;
     }
-
-    bool r = construct_tx_with_tx_key(sender_account_keys, subaddresses, sources, destinations, change_addr, extra, tx, unlock_time, tx_key, additional_tx_keys, rct, rct_config, msout);
-    hwdev.close_tx();
-    return r;
   }
   //---------------------------------------------------------------
   bool construct_tx(const account_keys& sender_account_keys, std::vector<tx_source_entry>& sources, const std::vector<tx_destination_entry>& destinations, const boost::optional<cryptonote::account_public_address>& change_addr, const std::vector<uint8_t> &extra, transaction& tx, uint64_t unlock_time)
@@ -639,28 +642,4 @@ namespace cryptonote
      std::vector<tx_destination_entry> destinations_copy = destinations;
      return construct_tx_and_get_tx_key(sender_account_keys, subaddresses, sources, destinations_copy, change_addr, extra, tx, unlock_time, tx_key, additional_tx_keys, false, { rct::RangeProofBorromean, 0}, NULL);
   }
-  //---------------------------------------------------------------
-  // bool generate_genesis_block(
-  //     block& bl
-  //   , std::string const & genesis_tx
-  //   , uint32_t nonce
-  //   )
-  // {
-  //   //genesis block
-  //   bl = boost::value_initialized<block>();
-
-  //   blobdata tx_bl;
-  //   bool r = string_tools::parse_hexstr_to_binbuff(genesis_tx, tx_bl);
-  //   CHECK_AND_ASSERT_MES(r, false, "failed to parse coinbase tx from hard coded blob");
-  //   r = parse_and_validate_tx_from_blob(tx_bl, bl.miner_tx);
-  //   CHECK_AND_ASSERT_MES(r, false, "failed to parse coinbase tx from hard coded blob");
-  //   bl.major_version = CURRENT_BLOCK_MAJOR_VERSION;
-  //   bl.minor_version = CURRENT_BLOCK_MINOR_VERSION;
-  //   bl.timestamp = 0;
-  //   bl.nonce = nonce;
-  //   miner::find_nonce_for_given_block(bl, 1, 0);
-  //   bl.invalidate_hashes();
-  //   return true;
-  // }
-  //---------------------------------------------------------------
 }
