@@ -28,7 +28,6 @@
 
 #include <boost/optional/optional.hpp>
 #include <string.h>
-#include <memory>
 #include "memwipe.h"
 #include "misc_log_ex.h"
 #include "wipeable_string.h"

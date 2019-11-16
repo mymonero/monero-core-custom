@@ -1,21 +1,21 @@
 // Copyright (c) 2014-2019, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include <unordered_set>
@@ -37,6 +37,8 @@ using namespace epee;
 #include "common/apply_permutation.h"
 #include "cryptonote_tx_utils.h"
 #include "cryptonote_config.h"
+// #include "blockchain.h"
+// #include "cryptonote_basic/miner.h"
 #include "cryptonote_basic/tx_extra.h"
 #include "crypto/crypto.h"
 #include "crypto/hash.h"
@@ -74,7 +76,7 @@ namespace cryptonote
     LOG_PRINT_L2("destinations include " << num_stdaddresses << " standard addresses and " << num_subaddresses << " subaddresses");
   }
   //---------------------------------------------------------------
-//   bool construct_miner_tx(size_t height, size_t median_weight, uint64_t already_generated_coins, size_t current_block_weight, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce, size_t max_outs, uint8_t hard_fork_version) {
+  bool construct_miner_tx(size_t height, size_t median_weight, uint64_t already_generated_coins, size_t current_block_weight, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce, size_t max_outs, uint8_t hard_fork_version) {
 //     tx.vin.clear();
 //     tx.vout.clear();
 //     tx.extra.clear();
@@ -170,10 +172,10 @@ namespace cryptonote
 
 //     tx.invalidate_hashes();
 
-//     //LOG_PRINT("MINER_TX generated ok, block_reward=" << print_money(block_reward) << "("  << print_money(block_reward - fee) << "+" << print_money(fee)
-//     //  << "), current_block_size=" << current_block_size << ", already_generated_coins=" << already_generated_coins << ", tx_id=" << get_transaction_hash(tx), LOG_LEVEL_2);
-//     return true;
-//   }
+    //LOG_PRINT("MINER_TX generated ok, block_reward=" << print_money(block_reward) << "("  << print_money(block_reward - fee) << "+" << print_money(fee)
+    //  << "), current_block_size=" << current_block_size << ", already_generated_coins=" << already_generated_coins << ", tx_id=" << get_transaction_hash(tx), LOG_LEVEL_2);
+    return true;
+  }
   //---------------------------------------------------------------
   crypto::public_key get_destination_view_key_pub(const std::vector<tx_destination_entry> &destinations, const boost::optional<cryptonote::account_public_address>& change_addr)
   {
@@ -642,4 +644,80 @@ namespace cryptonote
      std::vector<tx_destination_entry> destinations_copy = destinations;
      return construct_tx_and_get_tx_key(sender_account_keys, subaddresses, sources, destinations_copy, change_addr, extra, tx, unlock_time, tx_key, additional_tx_keys, false, { rct::RangeProofBorromean, 0}, NULL);
   }
+  //---------------------------------------------------------------
+  bool generate_genesis_block(
+      block& bl
+    , std::string const & genesis_tx
+    , uint32_t nonce
+    )
+  {
+    // //genesis block
+    // bl = {};
+
+    // blobdata tx_bl;
+    // bool r = string_tools::parse_hexstr_to_binbuff(genesis_tx, tx_bl);
+    // CHECK_AND_ASSERT_MES(r, false, "failed to parse coinbase tx from hard coded blob");
+    // r = parse_and_validate_tx_from_blob(tx_bl, bl.miner_tx);
+    // CHECK_AND_ASSERT_MES(r, false, "failed to parse coinbase tx from hard coded blob");
+    // bl.major_version = CURRENT_BLOCK_MAJOR_VERSION;
+    // bl.minor_version = CURRENT_BLOCK_MINOR_VERSION;
+    // bl.timestamp = 0;
+    // bl.nonce = nonce;
+    // miner::find_nonce_for_given_block([](const cryptonote::block &b, uint64_t height, unsigned int threads, crypto::hash &hash){
+    //   return cryptonote::get_block_longhash(NULL, b, hash, height, threads);
+    // }, bl, 1, 0);
+    // bl.invalidate_hashes();
+    return true;
+  }
+  //---------------------------------------------------------------
+//   void get_altblock_longhash(const block& b, crypto::hash& res, const uint64_t main_height, const uint64_t height, const uint64_t seed_height, const crypto::hash& seed_hash)
+//   {
+//     blobdata bd = get_block_hashing_blob(b);
+//     rx_slow_hash(main_height, seed_height, seed_hash.data, bd.data(), bd.size(), res.data, 0, 1);
+//   }
+//
+//   bool get_block_longhash(const Blockchain *pbc, const block& b, crypto::hash& res, const uint64_t height, const int miners)
+//   {
+//     // block 202612 bug workaround
+//     if (height == 202612)
+//     {
+//       static const std::string longhash_202612 = "84f64766475d51837ac9efbef1926486e58563c95a19fef4aec3254f03000000";
+//       epee::string_tools::hex_to_pod(longhash_202612, res);
+//       return true;
+//     }
+//     blobdata bd = get_block_hashing_blob(b);
+//     if (b.major_version >= RX_BLOCK_VERSION)
+//     {
+//       uint64_t seed_height, main_height;
+//       crypto::hash hash;
+//       if (pbc != NULL)
+//       {
+//         seed_height = rx_seedheight(height);
+//         hash = pbc->get_pending_block_id_by_height(seed_height);
+//         main_height = pbc->get_current_blockchain_height();
+//       } else
+//       {
+//         memset(&hash, 0, sizeof(hash));  // only happens when generating genesis block
+//         seed_height = 0;
+//         main_height = 0;
+//       }
+//       rx_slow_hash(main_height, seed_height, hash.data, bd.data(), bd.size(), res.data, miners, 0);
+//     } else {
+//       const int pow_variant = b.major_version >= 7 ? b.major_version - 6 : 0;
+//       crypto::cn_slow_hash(bd.data(), bd.size(), res, pow_variant, height);
+//     }
+//     return true;
+//   }
+//
+//   crypto::hash get_block_longhash(const Blockchain *pbc, const block& b, const uint64_t height, const int miners)
+//   {
+//     crypto::hash p = crypto::null_hash;
+//     get_block_longhash(pbc, b, p, height, miners);
+//     return p;
+//   }
+//
+//   void get_block_longhash_reorg(const uint64_t split_height)
+//   {
+//     rx_reorg(split_height);
+//   }
 }

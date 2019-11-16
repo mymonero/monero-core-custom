@@ -106,7 +106,7 @@ namespace epee
 
   size_t mlocker::get_page_size()
   {
-    return 4096;
+    return 4096; // just to remove some calls
     // CRITICAL_REGION_LOCAL(mutex());
     // if (page_size == 0)
     //   page_size = query_page_size();
@@ -120,7 +120,8 @@ namespace epee
 
   mlocker::~mlocker()
   {
-    // unlock(ptr, len);
+    // try { unlock(ptr, len); }
+    // catch (...) { /* ignore and do not propagate through the dtor */ }
   }
 
   void mlocker::lock(void *ptr, size_t len)
@@ -187,18 +188,18 @@ namespace epee
 
   void mlocker::unlock_page(size_t page)
   {
-    // std::map<size_t, unsigned int>::iterator i = map().find(page);
-    // if (i == map().end())
-    // {
-    //   MERROR("Attempt to unlock unlocked page at " << (void*)(page * page_size));
-    // }
-    // else
-    // {
-    //   if (!--i->second)
-    //   {
-    //     map().erase(i);
-    //     do_unlock((void*)(page * page_size), page_size);
-    //   }
-    // }
+  //   std::map<size_t, unsigned int>::iterator i = map().find(page);
+  //   if (i == map().end())
+  //   {
+  //     MERROR("Attempt to unlock unlocked page at " << (void*)(page * page_size));
+  //   }
+  //   else
+  //   {
+  //     if (!--i->second)
+  //     {
+  //       map().erase(i);
+  //       do_unlock((void*)(page * page_size), page_size);
+  //     }
+  //   }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2016-2019, The Monero Project
 //
 // All rights reserved.
 //
@@ -25,25 +25,24 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/optional.hpp>
-#include <system_error>
-#include <csignal>
-#include <cstdio>
-#include <functional>
-#include <memory>
 #include <string>
-
+#include <stdio.h>
+#include <memory>
+#include "misc_log_ex.h"
 
 namespace tools
 {
-    void set_max_concurrency(unsigned n);
-  unsigned get_max_concurrency();
-
+#define PERF_TIMER_NAME(name)
+#define PERF_TIMER_UNIT(name, unit)
+#define PERF_TIMER_UNIT_L(name, unit, l)
+#define PERF_TIMER(name)
+#define PERF_TIMER_L(name, l)
+#define PERF_TIMER_START_UNIT(name, unit)
+#define PERF_TIMER_START(name)
+#define PERF_TIMER_STOP(name)
+#define PERF_TIMER_PAUSE(name)
+#define PERF_TIMER_RESUME(name)
 }

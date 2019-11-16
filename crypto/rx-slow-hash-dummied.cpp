@@ -28,22 +28,13 @@
 //
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
-#pragma once
+#include <iostream>
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/optional.hpp>
-#include <system_error>
-#include <csignal>
-#include <cstdio>
-#include <functional>
-#include <memory>
-#include <string>
-
-
-namespace tools
+extern "C"
 {
-    void set_max_concurrency(unsigned n);
-  unsigned get_max_concurrency();
-
+	void rx_slow_hash(const uint64_t mainheight, const uint64_t seedheight, const char *seedhash, const void *data, size_t length,
+  		char *hash, int miners, int is_alt)
+	{
+		throw std::runtime_error("Didn't expect cn_slow_hash to be called in stripped-down monero-core-custom");
+	}
 }
