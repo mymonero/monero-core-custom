@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -88,7 +88,7 @@ namespace cryptonote
 // advance which version they will stop working with
 // Don't go over 32767 for any of these
 #define CORE_RPC_VERSION_MAJOR 3
-#define CORE_RPC_VERSION_MINOR 0
+#define CORE_RPC_VERSION_MINOR 2
 #define MAKE_CORE_RPC_VERSION(major,minor) (((major)<<16)|(minor))
 #define CORE_RPC_VERSION MAKE_CORE_RPC_VERSION(CORE_RPC_VERSION_MAJOR, CORE_RPC_VERSION_MINOR)
 
@@ -351,6 +351,7 @@ namespace cryptonote
       bool double_spend_seen;
       uint64_t block_height;
       uint64_t block_timestamp;
+      uint64_t received_timestamp;
       std::vector<uint64_t> output_indices;
       bool relayed;
 
@@ -372,6 +373,7 @@ namespace cryptonote
         else
         {
           KV_SERIALIZE(relayed)
+          KV_SERIALIZE(received_timestamp)
         }
       END_KV_SERIALIZE_MAP()
     };
@@ -586,7 +588,6 @@ namespace cryptonote
       bool too_big;
       bool overspend;
       bool fee_too_low;
-      bool not_rct;
       bool too_few_outputs;
       bool sanity_check_failed;
 
@@ -601,7 +602,6 @@ namespace cryptonote
         KV_SERIALIZE(too_big)
         KV_SERIALIZE(overspend)
         KV_SERIALIZE(fee_too_low)
-        KV_SERIALIZE(not_rct)
         KV_SERIALIZE(too_few_outputs)
         KV_SERIALIZE(sanity_check_failed)
       END_KV_SERIALIZE_MAP()
@@ -675,6 +675,7 @@ namespace cryptonote
       uint64_t block_weight_limit;
       uint64_t block_size_median;
       uint64_t block_weight_median;
+      uint64_t adjusted_time;
       uint64_t start_time;
       uint64_t free_space;
       bool offline;
@@ -713,6 +714,7 @@ namespace cryptonote
         KV_SERIALIZE_OPT(block_weight_limit, (uint64_t)0)
         KV_SERIALIZE(block_size_median)
         KV_SERIALIZE_OPT(block_weight_median, (uint64_t)0)
+        KV_SERIALIZE(adjusted_time)
         KV_SERIALIZE(start_time)
         KV_SERIALIZE(free_space)
         KV_SERIALIZE(offline)
@@ -2021,12 +2023,20 @@ namespace cryptonote
     struct response_t: public rpc_access_response_base
     {
       uint64_t emission_amount;
+      std::string wide_emission_amount;
+      uint64_t emission_amount_top64;
       uint64_t fee_amount;
+      std::string wide_fee_amount;
+      uint64_t fee_amount_top64;
 
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE_PARENT(rpc_access_response_base)
         KV_SERIALIZE(emission_amount)
+        KV_SERIALIZE(wide_emission_amount)
+        KV_SERIALIZE(emission_amount_top64)
         KV_SERIALIZE(fee_amount)
+        KV_SERIALIZE(wide_fee_amount)
+        KV_SERIALIZE(fee_amount_top64)
       END_KV_SERIALIZE_MAP()
     };
     typedef epee::misc_utils::struct_init<response_t> response;
@@ -2556,22 +2566,23 @@ namespace cryptonote
 
   struct COMMAND_RPC_FLUSH_CACHE
   {
-    struct request_t
+    struct request_t: public rpc_request_base
     {
       bool bad_txs;
+      bool bad_blocks;
 
       BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE_PARENT(rpc_request_base)
         KV_SERIALIZE_OPT(bad_txs, false)
+        KV_SERIALIZE_OPT(bad_blocks, false)
       END_KV_SERIALIZE_MAP()
     };
     typedef epee::misc_utils::struct_init<request_t> request;
 
-    struct response_t
+    struct response_t: public rpc_response_base
     {
-      std::string status;
-
       BEGIN_KV_SERIALIZE_MAP()
-        KV_SERIALIZE(status)
+        KV_SERIALIZE_PARENT(rpc_response_base)
       END_KV_SERIALIZE_MAP()
     };
     typedef epee::misc_utils::struct_init<response_t> response;

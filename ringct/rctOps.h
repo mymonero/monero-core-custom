@@ -124,6 +124,7 @@ namespace rct {
     key scalarmultH(const key & a);
     // multiplies a point by 8
     key scalarmult8(const key & P);
+    void scalarmult8(ge_p3 &res, const key & P);
     // checks a is in the main subgroup (ie, not a small one)
     bool isInMainSubgroup(const key & a);
 
@@ -144,6 +145,10 @@ namespace rct {
     //B must be input after applying "precomp"
     void addKeys3(key &aAbB, const key &a, const key &A, const key &b, const ge_dsmp B);
     void addKeys3(key &aAbB, const key &a, const ge_dsmp A, const key &b, const ge_dsmp B);
+
+    void addKeys_aGbBcC(key &aGbBcC, const key &a, const key &b, const ge_dsmp B, const key &c, const ge_dsmp C);
+    void addKeys_aAbBcC(key &aAbBcC, const key &a, const ge_dsmp A, const key &b, const ge_dsmp B, const key &c, const ge_dsmp C);
+
     //AB = A - B where A, B are curve points
     void subKeys(key &AB, const key &A, const  key &B);
     //checks if A, B are equal as curve points

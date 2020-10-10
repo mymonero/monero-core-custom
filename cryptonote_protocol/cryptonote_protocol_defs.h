@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -197,10 +197,12 @@ namespace cryptonote
     {
       std::vector<blobdata>   txs;
       std::string _; // padding
+      bool dandelionpp_fluff; //zero initialization defaults to stem mode
 
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(txs)
         KV_SERIALIZE(_)
+        KV_SERIALIZE_OPT(dandelionpp_fluff, true) // backwards compatible mode is fluff
       END_KV_SERIALIZE_MAP()
     };
     typedef epee::misc_utils::struct_init<request_t> request;
@@ -257,7 +259,10 @@ namespace cryptonote
     BEGIN_KV_SERIALIZE_MAP()
       KV_SERIALIZE(current_height)
       KV_SERIALIZE(cumulative_difficulty)
-      KV_SERIALIZE(cumulative_difficulty_top64)
+      if (is_store)
+        KV_SERIALIZE(cumulative_difficulty_top64)
+      else
+        KV_SERIALIZE_OPT(cumulative_difficulty_top64, (uint64_t)0)
       KV_SERIALIZE_VAL_POD_AS_BLOB(top_id)
       KV_SERIALIZE_OPT(top_version, (uint8_t)0)
       KV_SERIALIZE_OPT(pruning_seed, (uint32_t)0)
@@ -298,7 +303,10 @@ namespace cryptonote
         KV_SERIALIZE(start_height)
         KV_SERIALIZE(total_height)
         KV_SERIALIZE(cumulative_difficulty)
-        KV_SERIALIZE(cumulative_difficulty_top64)
+        if (is_store)
+          KV_SERIALIZE(cumulative_difficulty_top64)
+        else
+          KV_SERIALIZE_OPT(cumulative_difficulty_top64, (uint64_t)0)
         KV_SERIALIZE_CONTAINER_POD_AS_BLOB(m_block_ids)
         KV_SERIALIZE_CONTAINER_POD_AS_BLOB(m_block_weights)
       END_KV_SERIALIZE_MAP()
@@ -347,5 +355,23 @@ namespace cryptonote
     };
     typedef epee::misc_utils::struct_init<request_t> request;
   }; 
+
+  /************************************************************************/
+  /*                                                                      */
+  /************************************************************************/
+  struct NOTIFY_GET_TXPOOL_COMPLEMENT
+  {
+    const static int ID = BC_COMMANDS_POOL_BASE + 10;
+
+    struct request_t
+    {
+      std::vector<crypto::hash> hashes;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE_CONTAINER_POD_AS_BLOB(hashes)
+      END_KV_SERIALIZE_MAP()
+    };
+    typedef epee::misc_utils::struct_init<request_t> request;
+  };
     
 }
