@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -35,32 +35,17 @@
 
 #include "util.h"
 
-#include <boost/thread/thread.hpp>
 
 namespace tools
 {
 
-  namespace
-  {
-    boost::mutex max_concurrency_lock;
-    unsigned max_concurrency = boost::thread::hardware_concurrency();
-  }
-
   void set_max_concurrency(unsigned n)
   {
-    if (n < 1)
-      n = boost::thread::hardware_concurrency();
-    unsigned hwc = boost::thread::hardware_concurrency();
-    if (n > hwc)
-      n = hwc;
-    boost::lock_guard<boost::mutex> lock(max_concurrency_lock);
-    max_concurrency = n;
   }
 
   unsigned get_max_concurrency()
   {
-    boost::lock_guard<boost::mutex> lock(max_concurrency_lock);
-    return max_concurrency;
+    return 1;
   }
 
 

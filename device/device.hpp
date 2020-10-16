@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, The Monero Project
+// Copyright (c) 2017-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -56,6 +56,7 @@ namespace cryptonote
     struct subaddress_index;
     struct tx_destination_entry;
     struct keypair;
+    class transaction_prefix;
 }
 
 namespace hw {
@@ -78,7 +79,7 @@ namespace hw {
         virtual void on_button_request(uint64_t code=0) {}
         virtual void on_button_pressed() {}
         virtual boost::optional<epee::wipeable_string> on_pin_request() { return boost::none; }
-        virtual boost::optional<epee::wipeable_string> on_passphrase_request(bool on_device) { return boost::none; }
+        virtual boost::optional<epee::wipeable_string> on_passphrase_request(bool & on_device) { on_device = true; return boost::none; }
         virtual void on_progress(const device_progress& event) {}
         virtual ~i_device_callback() = default;
     };
@@ -203,6 +204,8 @@ namespace hw {
 
         virtual bool  open_tx(crypto::secret_key &tx_key) = 0;
 
+        virtual void get_transaction_prefix_hash(const cryptonote::transaction_prefix& tx, crypto::hash& h) = 0;
+        
         virtual bool  encrypt_payment_id(crypto::hash8 &payment_id, const crypto::public_key &public_key, const crypto::secret_key &secret_key) = 0;
         bool  decrypt_payment_id(crypto::hash8 &payment_id, const crypto::public_key &public_key, const crypto::secret_key &secret_key)
         {
@@ -227,6 +230,10 @@ namespace hw {
         virtual bool  mlsag_prepare(rct::key &a, rct::key &aG) = 0;
         virtual bool  mlsag_hash(const rct::keyV &long_message, rct::key &c) = 0;
         virtual bool  mlsag_sign(const rct::key &c, const rct::keyV &xx, const rct::keyV &alpha, const size_t rows, const size_t dsRows, rct::keyV &ss) = 0;
+
+        virtual bool clsag_prepare(const rct::key &p, const rct::key &z, rct::key &I, rct::key &D, const rct::key &H, rct::key &a, rct::key &aG, rct::key &aH) = 0;
+        virtual bool clsag_hash(const rct::keyV &data, rct::key &hash) = 0;
+        virtual bool clsag_sign(const rct::key &c, const rct::key &a, const rct::key &p, const rct::key &z, const rct::key &mu_P, const rct::key &mu_C, rct::key &s) = 0;
 
         virtual bool  close_tx(void) = 0;
 
