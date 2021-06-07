@@ -39,8 +39,6 @@
 #include "ringct/rctOps.h"
 #include "cryptonote_config.h"
 
-#include "log.hpp"
-
 namespace hw {
 
     namespace core {

@@ -110,12 +110,14 @@ namespace cryptonote {
     , const std::string& str
     );
 
-  // bool get_account_address_from_str_or_url(
-  //     address_parse_info& info
-  //   , network_type nettype
-  //   , const std::string& str_or_url
-  //   , std::function<std::string(const std::string&, const std::vector<std::string>&, bool)> dns_confirm = return_first_address
-  //   );
+#ifndef MYMONERO_CORE_CUSTOM
+  bool get_account_address_from_str_or_url(
+      address_parse_info& info
+    , network_type nettype
+    , const std::string& str_or_url
+    , std::function<std::string(const std::string&, const std::vector<std::string>&, bool)> dns_confirm = return_first_address
+    );
+#endif // MYMONERO_CORE_CUSTOM
 
   bool is_coinbase(const transaction& tx);
 

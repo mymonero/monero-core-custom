@@ -38,7 +38,7 @@
 #include "crypto/hash.h"
 #include "rpc/rpc_handler.h"
 #include "common/varint.h"
-// #include "common/perf_timer.h"
+#include "common/perf_timer.h"
 
 namespace
 {
