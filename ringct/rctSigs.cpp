@@ -30,7 +30,7 @@
 
 #include "misc_log_ex.h"
 #include "misc_language.h"
-// #include "common/perf_timer.h"
+#include "common/perf_timer.h"
 #include "common/threadpool.h"
 #include "common/util.h"
 #include "rctSigs.h"
@@ -538,7 +538,7 @@ namespace rct {
     bool verRange(const key & C, const rangeSig & as) {
       try
       {
-        // PERF_TIMER(verRange);
+        PERF_TIMER(verRange);
         ge_p3 CiH[64], asCi[64];
         int i = 0;
         ge_p3 Ctmp_p3 = ge_p3_identity;
@@ -758,7 +758,7 @@ namespace rct {
     //Ver:    
     //   verifies the above sig is created corretly
     bool verRctMG(const mgSig &mg, const ctkeyM & pubs, const ctkeyV & outPk, const key &txnFeeKey, const key &message) {
-        // PERF_TIMER(verRctMG);
+        PERF_TIMER(verRctMG);
         //setup vars
         size_t cols = pubs.size();
         CHECK_AND_ASSERT_MES(cols >= 1, false, "Empty pubs");
@@ -799,7 +799,7 @@ namespace rct {
     bool verRctMGSimple(const key &message, const mgSig &mg, const ctkeyV & pubs, const key & C) {
         try
         {
-            // PERF_TIMER(verRctMGSimple);
+            PERF_TIMER(verRctMGSimple);
             //setup vars
             size_t rows = 1;
             size_t cols = pubs.size();
@@ -830,7 +830,7 @@ namespace rct {
     bool verRctCLSAGSimple(const key &message, const clsag &sig, const ctkeyV & pubs, const key & C_offset) {
         try
         {
-            // PERF_TIMER(verRctCLSAGSimple);
+            PERF_TIMER(verRctCLSAGSimple);
             const size_t n = pubs.size();
 
             // Check data
@@ -1260,7 +1260,7 @@ namespace rct {
     //   uses the attached ecdh info to find the amounts represented by each output commitment 
     //   must know the destination private key to find the correct amount, else will return a random number    
     bool verRct(const rctSig & rv, bool semantics) {
-        // PERF_TIMER(verRct);
+        PERF_TIMER(verRct);
         CHECK_AND_ASSERT_MES(rv.type == RCTTypeFull, false, "verRct called on non-full rctSig");
         if (semantics)
         {
@@ -1325,7 +1325,7 @@ namespace rct {
     bool verRctSemanticsSimple(const std::vector<const rctSig*> & rvv) {
       try
       {
-        // PERF_TIMER(verRctSemanticsSimple);
+        PERF_TIMER(verRctSemanticsSimple);
 
         tools::threadpool& tpool = tools::threadpool::getInstance();
         tools::threadpool::waiter waiter(tpool);
@@ -1445,7 +1445,7 @@ namespace rct {
     bool verRctNonSemanticsSimple(const rctSig & rv) {
       try
       {
-        // PERF_TIMER(verRctNonSemanticsSimple);
+        PERF_TIMER(verRctNonSemanticsSimple);
 
         CHECK_AND_ASSERT_MES(rv.type == RCTTypeSimple || rv.type == RCTTypeBulletproof || rv.type == RCTTypeBulletproof2 || rv.type == RCTTypeCLSAG,
             false, "verRctNonSemanticsSimple called on non simple rctSig");

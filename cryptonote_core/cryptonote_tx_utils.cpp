@@ -37,6 +37,10 @@ using namespace epee;
 #include "common/apply_permutation.h"
 #include "cryptonote_tx_utils.h"
 #include "cryptonote_config.h"
+#ifndef MYMONERO_CORE_CUSTOM
+#include "blockchain.h"
+#include "cryptonote_basic/miner.h"
+#endif // MYMONERO_CORE_CUSTOM
 #include "cryptonote_basic/tx_extra.h"
 #include "crypto/crypto.h"
 #include "crypto/hash.h"
@@ -74,7 +78,7 @@ namespace cryptonote
     LOG_PRINT_L2("destinations include " << num_stdaddresses << " standard addresses and " << num_subaddresses << " subaddresses");
   }
   //---------------------------------------------------------------
-#if 0
+#ifndef MYMONERO_CORE_CUSTOM
   bool construct_miner_tx(size_t height, size_t median_weight, uint64_t already_generated_coins, size_t current_block_weight, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce, size_t max_outs, uint8_t hard_fork_version) {
     tx.vin.clear();
     tx.vout.clear();
@@ -175,7 +179,7 @@ namespace cryptonote
     //  << "), current_block_size=" << current_block_size << ", already_generated_coins=" << already_generated_coins << ", tx_id=" << get_transaction_hash(tx), LOG_LEVEL_2);
     return true;
   }
-#endif // 0
+#endif // MYMONERO_CORE_CUSTOM
   //---------------------------------------------------------------
   crypto::public_key get_destination_view_key_pub(const std::vector<tx_destination_entry> &destinations, const boost::optional<cryptonote::account_public_address>& change_addr)
   {
@@ -644,7 +648,7 @@ namespace cryptonote
      std::vector<tx_destination_entry> destinations_copy = destinations;
      return construct_tx_and_get_tx_key(sender_account_keys, subaddresses, sources, destinations_copy, change_addr, extra, tx, unlock_time, tx_key, additional_tx_keys, false, { rct::RangeProofBorromean, 0}, NULL);
   }
-#if 0
+#ifndef MYMONERO_CORE_CUSTOM
   //---------------------------------------------------------------
   bool generate_genesis_block(
       block& bl
@@ -726,5 +730,5 @@ namespace cryptonote
   {
     rx_reorg(split_height);
   }
-#endif // 0
+#endif // MYMONERO_CORE_CUSTOM
 }
