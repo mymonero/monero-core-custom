@@ -24,59 +24,68 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 
+#ifndef _STRING_TOOLS_LEXICAL_H_
+#define _STRING_TOOLS_LEXICAL_H_
 
+#include "warnings.h"
+#include "storages/parserse_base_utils.h"
+#include <boost/lexical_cast.hpp> // A heavy header, that was extracted from the rest
 
-#ifndef _STATIC_INITIALIZER_H_
-#define _STATIC_INITIALIZER_H_
-
+#ifndef OUT
+	#define OUT
+#endif
 
 namespace epee
 {
-/***********************************************************************
-class initializer - useful to initialize some static classes 
-                       which have init() and un_init() static members
-************************************************************************/
-
-template<class to_initialize>
-class initializer
+namespace string_tools
 {
-public:
-	initializer()
-	{
-		to_initialize::init();
-		//get_set_is_initialized(true, true);
-	}
-	~initializer()
-	{
-		to_initialize::un_init();
-		//get_set_is_uninitialized(true, true);
-	}
+PUSH_WARNINGS
+DISABLE_GCC_WARNING(maybe-uninitialized)
+    template<class XType>
+    inline bool get_xtype_from_string(OUT XType& val, const std::string& str_id)
+    {
+        if (std::is_integral<XType>::value && !std::numeric_limits<XType>::is_signed && !std::is_same<XType, bool>::value)
+        {
+            for (char c : str_id)
+            {
+                if (!epee::misc_utils::parse::isdigit(c))
+                    return false;
+            }
+        }
 
-	/*static inline bool is_initialized()
-	{
-		return get_set_is_initialized();
-	}
-	static inline bool is_uninitialized()
-	{
-		return get_set_is_uninitialized();
-	}
+        try
+        {
+            val = boost::lexical_cast<XType>(str_id);
+            return true;
+        }
+        catch(const std::exception& /*e*/)
+        {
+            //const char* pmsg = e.what();
+            return false;
+        }
+        catch(...)
+        {
+            return false;
+        }
 
-private: 
-	static inline bool get_set_is_initialized(bool need_to_set = false, bool val_to_set= false)
-	{
-		static bool val_is_initialized = false;
-		if(need_to_set)
-			val_is_initialized = val_to_set;
-		return val_is_initialized;
-	}
-	static inline bool get_set_is_uninitialized(bool need_to_set = false, bool val_to_set = false)
-	{
-		static bool val_is_uninitialized = false;
-		if(need_to_set)
-			val_is_uninitialized = val_to_set;
-		return val_is_uninitialized;
-	}*/
-};
+        return true;
+    }
+POP_WARNINGS
 
+    template<class XType>
+    inline bool xtype_to_string(const  XType& val, std::string& str)
+    {
+        try
+        {
+            str = boost::lexical_cast<std::string>(val);
+        }
+        catch(...)
+        {
+            return false;
+        }
+
+        return true;
+    }
 }
-#endif //_STATIC_INITIALIZER_H_
+}
+#endif //_STRING_TOOLS_LEXICAL_H_
